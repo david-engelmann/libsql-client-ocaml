@@ -14,6 +14,14 @@ depends: [
     "core"
     "async"
     "dune" {>= "2.0.0"}
+    "uri" {>= "4.2.0"}
+    "lwt" {>= "5.6.1"}
+    "cohttp" {>= "5.1.0"}
+    "cohttp-lwt-unix"
+    "cohttp-async"
+    "ssl"
+    "lwt_ssl"
+    "jose"
     ]
 available: arch != "arm32" & arch != "x86_32"
 synopsis: "OCaml-based tools for libSQL"

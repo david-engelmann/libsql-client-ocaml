@@ -22,6 +22,7 @@ depends: [
     "ssl"
     "lwt_ssl"
     "jose"
+    "alcotest"
     ]
 available: arch != "arm32" & arch != "x86_32"
 synopsis: "OCaml-based tools for libSQL"

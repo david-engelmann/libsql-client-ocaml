@@ -1,4 +1,4 @@
-open OUnit2
+open Alcotest
 open Libsql.Auth
 
 let sample_basic_cred_defaults : Auth.basic_cred = {
@@ -11,33 +11,32 @@ let sample_basic_cred : Auth.basic_cred = {
    password = "julyjackson";
   }
 
-let test_sample_basic_cred_defaults _ =
+let test_sample_basic_cred_defaults () =
   match sample_basic_cred_defaults with
    | { username; _ } ->
-      OUnit2.assert_equal "root" username
+      check string "same username" "root" username
 
-let test_sample_basic_cred_username _ =
+let test_sample_basic_cred_username () =
   match sample_basic_cred with
    | { username; _ } ->
-      OUnit2.assert_equal "libsql" username
+      check string "same username" "libsql" username
 
-let test_sample_basic_cred_password _ =
+let test_sample_basic_cred_password () =
   match sample_basic_cred with
    | { password; _ } ->
-      OUnit2.assert_equal "julyjackson" password
+    check string "same password" "julyjackson" password
 
-let test_get_base_url_from_env _ =
+let test_get_base_url_from_env () =
     let base_url = Auth.get_base_url_from_env in
-    Printf.printf "Base Url: %s\n" base_url;
-    OUnit2.assert_equal "localhost:8000" base_url
+    check string "same base_url" "localhost:8000" base_url
 
-let suite =
-  "suite"
-  >::: [
-         "test_sample_basic_cred_defaults" >:: test_sample_basic_cred_defaults;
-         "test_sample_basic_cred_username" >:: test_sample_basic_cred_username;
-         "test_sample_basic_cred_password" >:: test_sample_basic_cred_password;
-         "test_get_base_url_from_env" >:: test_get_base_url_from_env;
-       ]
-
-let () = run_test_tt_main suite
+let () =
+  Alcotest.run "Auth Test Suite" [
+    "Auth",
+    [
+    ("test_sample_basic_cred_defaults", `Quick, test_sample_basic_cred_defaults);
+    ("test_sample_basic_cred_username", `Quick, test_sample_basic_cred_username);
+    ("test_sample_basic_cred_password", `Quick, test_sample_basic_cred_password);
+    ("test_get_base_url_from_env", `Quick, test_get_base_url_from_env);
+    ]
+  ]

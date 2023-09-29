@@ -1,19 +1,18 @@
-
-open OUnit2
+open Alcotest
 open Libsql.Url
 
 let sample_remote_url : Url.url = {
     url = "libsql://ocaml-david-engelmann.turso.io"
   }
 
-let test_sample_remote_url _ =
+let test_sample_remote_url () =
   match sample_remote_url with
-  | {url} -> OUnit2.assert_equal url "libsql://ocaml-david-engelmann.turso.io"
+  | {url} -> check string "same url" url "libsql://ocaml-david-engelmann.turso.io"
 
-let suite =
-  "suite"
-  >::: [
-    "test_sample_remote_url" >:: test_sample_remote_url;
+let () =
+  Alcotest.run "Url Test Suite" [
+    "Url",
+    [
+    ("test_sample_remote_url", `Quick, test_sample_remote_url);
+    ]
   ]
-
-let () = run_test_tt_main suite

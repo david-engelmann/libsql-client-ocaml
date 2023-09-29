@@ -2,7 +2,7 @@
  ; multiple test files
  (names test_auth test_path test_url)
 
- (libraries async core uri cohttp cohttp-lwt-unix cohttp-async httpaf httpaf-lwt-unix ssl jose lwt_ssl lwt ounit2 libsql)
+ (libraries async core uri cohttp cohttp-lwt-unix cohttp-async httpaf httpaf-lwt-unix ssl jose lwt_ssl lwt alcotest libsql)
 
  ; multiple test files
  (modules test_auth test_path test_url))

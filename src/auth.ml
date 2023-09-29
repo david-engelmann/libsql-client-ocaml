@@ -46,4 +46,8 @@ module Auth = struct
     let hostname = hostname ^ ":" ^ (string_of_int port) in
     hostname
 
+  let get_token_from_env : string =
+    let token = token_from_env in
+    token
+
 end

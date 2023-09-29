@@ -1,4 +1,4 @@
-(*open Cohttp_client*)
+open Cohttp_client
 
 module Auth = struct
   type auth =
@@ -19,13 +19,13 @@ module Auth = struct
     let json = Yojson.Safe.from_string body in
     json
 
-    let port_from_env : int =
-      try
-          let port_str = Sys.getenv "LIBSQL_PORT" in
-          try
-              int_of_string port_str
-          with Failure _ -> 8000
-      with Not_found -> 8000
+  let port_from_env : int =
+    try
+        let port_str = Sys.getenv "LIBSQL_PORT" in
+        try
+            int_of_string port_str
+        with Failure _ -> 8000
+    with Not_found -> 8000
 
   let hostname_from_env : string =
     let hostname = try Sys.getenv "LIBSQL_HOST" with Not_found -> "localhost" in
@@ -50,4 +50,22 @@ module Auth = struct
     let token = token_from_env in
     token
 
+  let create_auth : auth =
+    let token = get_token_from_env in
+    { token }
+
+  let parse_url_to_config (url_str: string) : Cohttp_client.config =
+    let url = Uri.of_string url_str in
+    let scheme = Uri.scheme url |> Option.value ~default:"" in
+    let authority = Uri.host_with_default ~default:"" url in
+    let path = Uri.path url in
+    let auth_token = Some get_token_from_env in
+    let tls_value = Uri.get_query_param url "tls" |> Option.value ~default:"" in
+    let tls =
+      match String.lowercase_ascii tls_value with
+      | "1" | "true" -> true
+      | "0" | "false" -> false
+      | _ -> false
+    in
+    { scheme; authority; path; auth_token; tls }
 end

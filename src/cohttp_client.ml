@@ -2,6 +2,15 @@ open Cohttp
 open Cohttp_lwt_unix
 
 module Cohttp_client = struct
+  type config =
+    {
+      scheme : string;
+      authority : string;
+      path : string;
+      auth_token : string option;
+      tls : bool;
+    }
+
   let get_body url =
     let open Lwt.Infix in
     Client.get (Uri.of_string url) >>= fun (resp, body) ->

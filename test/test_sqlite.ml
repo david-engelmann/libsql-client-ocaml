@@ -20,6 +20,14 @@ let test_validate_sqlite_config =
   test_case "validate_sqlite_config with file does not raise an exception"
     `Quick (fun () -> Sqlite.validate_sqlite_config sample_basic_sqlite_config)
 
+let test_execute_query =
+  test_case "execute_query does not raise an exception" `Quick (fun () ->
+      let config = Sqlite.parse_url_to_sqlite_config "file:test.db" in
+      let db = Sqlite.open_db config in
+      Sqlite.execute_query db
+        "CREATE TABLE IF NOT EXISTS test (id INTEGER PRIMARY KEY, name TEXT \
+         NOT NULL);")
+
 let () =
   Alcotest.run "Sqlite Test Suite"
     [
@@ -35,5 +43,6 @@ let () =
             `Quick,
             test_sample_basic_sqlite_config_path );
           test_validate_sqlite_config;
+          test_execute_query;
         ] );
     ]

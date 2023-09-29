@@ -1,30 +1,23 @@
 open Alcotest
 open Libsql.Auth
 
-let sample_basic_cred_defaults : Auth.basic_cred = {
-   username = "root";
-   password = "";
+let sample_basic_cred_defaults : Auth.auth = {
+    token = "your.test.token"
   }
 
-let sample_basic_cred : Auth.basic_cred = {
-   username = "libsql";
-   password = "julyjackson";
+let sample_basic_cred : Auth.auth = {
+    token = "another.test.token"
   }
 
 let test_sample_basic_cred_defaults () =
   match sample_basic_cred_defaults with
-   | { username; _ } ->
-      check string "same username" "root" username
+   | { token; _ } ->
+      check string "same token" "your.test.token" token
 
-let test_sample_basic_cred_username () =
+let test_sample_basic_cred () =
   match sample_basic_cred with
-   | { username; _ } ->
-      check string "same username" "libsql" username
-
-let test_sample_basic_cred_password () =
-  match sample_basic_cred with
-   | { password; _ } ->
-    check string "same password" "julyjackson" password
+   | { token; _ } ->
+      check string "same token" "another.test.token" token
 
 let test_get_base_url_from_env () =
     let base_url = Auth.get_base_url_from_env in
@@ -35,8 +28,7 @@ let () =
     "Auth",
     [
     ("test_sample_basic_cred_defaults", `Quick, test_sample_basic_cred_defaults);
-    ("test_sample_basic_cred_username", `Quick, test_sample_basic_cred_username);
-    ("test_sample_basic_cred_password", `Quick, test_sample_basic_cred_password);
+    ("test_sample_basic_cred", `Quick, test_sample_basic_cred);
     ("test_get_base_url_from_env", `Quick, test_get_base_url_from_env);
     ]
   ]

@@ -16,6 +16,10 @@ let test_sample_basic_sqlite_config_path () =
   match sample_basic_sqlite_config with
   | { path; _ } -> check string "same path" "local.db" path
 
+let test_validate_sqlite_config =
+  test_case "validate_sqlite_config with file does not raise an exception"
+    `Quick (fun () -> Sqlite.validate_sqlite_config sample_basic_sqlite_config)
+
 let () =
   Alcotest.run "Sqlite Test Suite"
     [
@@ -30,5 +34,6 @@ let () =
           ( "test_sample_basic_sqlite_config_path",
             `Quick,
             test_sample_basic_sqlite_config_path );
+          test_validate_sqlite_config;
         ] );
     ]

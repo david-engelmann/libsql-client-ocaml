@@ -1,0 +1,7 @@
+(include_subdirs unqualified)
+(library
+ (name libsql)
+ (libraries async core uri cohttp cohttp-lwt-unix cohttp-async httpaf httpaf-lwt-unix ssl jose lwt_ssl lwt)
+ (preprocess (pps ppx_jane))
+ (modules Auth Cohttp_client))
+

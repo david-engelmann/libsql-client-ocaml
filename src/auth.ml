@@ -31,6 +31,10 @@ module Auth = struct
     let hostname = try Sys.getenv "LIBSQL_HOST" with Not_found -> "localhost" in
     hostname
 
+  let token_from_env : string =
+    let token = try Sys.getenv "LIBSQL_TOKEN" with Not_found -> "" in
+    token
+
   let remove_last_char str =
     let str_len = String.length str in
     if str_len = 0 then str else String.sub str 0 (str_len - 1)

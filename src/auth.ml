@@ -59,7 +59,14 @@ module Auth = struct
     let scheme = Uri.scheme url |> Option.value ~default:"" in
     let authority = Uri.host_with_default ~default:"" url in
     let path = Uri.path url in
-    let auth_token = Some get_token_from_env in
+    let initial_auth_token = get_token_from_env in
+    let auth_token = 
+      if initial_auth_token <> "" then Some initial_auth_token
+      else 
+        match Uri.get_query_param url "authToken" with
+        | Some token when token <> "" -> Some token
+        | _ -> None
+    in
     let tls_value = Uri.get_query_param url "tls" |> Option.value ~default:"" in
     let tls =
       match String.lowercase_ascii tls_value with

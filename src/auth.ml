@@ -1,7 +1,17 @@
-open Cohttp_client
-
 module Auth = struct
+  exception Http_clientError of string * string
+
   type auth = { token : string }
+
+  type config = {
+    scheme : string;
+    authority : string;
+    path : string;
+    auth_token : string option;
+    tls : bool;
+  }
+
+  let create_auth_from_token (token : string) : auth = { token }
 
   let create_bearer_auth_header (auth : auth) : string * string =
     ("authorization", "Bearer " ^ auth.token)
@@ -27,7 +37,7 @@ module Auth = struct
     in
     hostname
 
-  let token_from_env : string =
+  let token_from_env () : string =
     let token = try Sys.getenv "LIBSQL_TOKEN" with Not_found -> "" in
     token
 
@@ -46,20 +56,20 @@ module Auth = struct
     let hostname = hostname ^ ":" ^ string_of_int port in
     hostname
 
-  let get_token_from_env : string =
-    let token = token_from_env in
+  let get_token_from_env () : string =
+    let token = token_from_env () in
     token
 
   let create_auth : auth =
-    let token = get_token_from_env in
+    let token = get_token_from_env () in
     { token }
 
-  let parse_url_to_http_config (url_str : string) : Cohttp_client.config =
+  let parse_url_to_http_config (url_str : string) : config =
     let url = Uri.of_string url_str in
     let scheme = Uri.scheme url |> Option.value ~default:"" in
     let authority = Uri.host_with_default ~default:"" url in
     let path = Uri.path url in
-    let initial_auth_token = get_token_from_env in
+    let initial_auth_token = get_token_from_env () in
     let auth_token =
       if initial_auth_token <> "" then Some initial_auth_token
       else
@@ -75,4 +85,21 @@ module Auth = struct
       | _ -> false
     in
     { scheme; authority; path; auth_token; tls }
+
+  let validate_http_config (config : config) : unit =
+    match String.lowercase_ascii config.scheme with
+    | "http" when config.tls ->
+        raise
+          (Http_clientError
+             ("A 'http:' URL cannot opt into TLS by using ?tls=1", "URL_INVALID"))
+    | "https" when not config.tls ->
+        raise
+          (Http_clientError
+             ( "A 'https:' URL cannot opt out of TLS by using ?tls=0",
+               "URL_INVALID" ))
+    | "http" | "https" -> ()
+    | _ ->
+        raise
+          (Http_clientError
+             ("The scheme must be either 'http' or 'https'", "URL_INVALID"))
 end

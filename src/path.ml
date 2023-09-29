@@ -1,3 +1,5 @@
 module Path = struct
-  let path = "file:blah"
+  type path = {
+    path : string;
+  }
 end

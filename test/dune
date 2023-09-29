@@ -1,15 +1,9 @@
 (tests
  ; multiple test files
- ; (names test_sample test_resample)
-
- ; single test file
- (names test_auth)
+ (names test_auth test_path test_url)
 
  (libraries async core uri cohttp cohttp-lwt-unix cohttp-async httpaf httpaf-lwt-unix ssl jose lwt_ssl lwt ounit2 libsql)
 
  ; multiple test files
- ; (modules test_sample test_resample)
-
- ; single test file
- (modules test_auth))
+ (modules test_auth test_path test_url))
 

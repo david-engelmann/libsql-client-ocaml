@@ -2,6 +2,8 @@ open Cohttp
 open Cohttp_lwt_unix
 
 module Cohttp_client = struct
+  exception Cohttp_clientError of string * string
+
   type config =
     {
       scheme : string;
@@ -112,7 +114,6 @@ module Cohttp_client = struct
     (*Printf.printf "Body of length: %d\n" (String.length body);*)
     body
 
-
   let get_request_with_body_and_headers (url : string) body headers =
     let open Lwt.Infix in
     let url_with_body = url ^ "?" ^ body in
@@ -158,5 +159,14 @@ module Cohttp_client = struct
     match Header.get (Response.headers resp) "content-type" with
     | Some ct -> Lwt.return ct
     | None -> Lwt.return "No content-type found"
+
+  let validate_cohttp_config (config: config) : unit =
+  match String.lowercase_ascii config.scheme with
+    | "http" when config.tls ->
+      raise (Cohttp_clientError ("A 'http:' URL cannot opt into TLS by using ?tls=1", "URL_INVALID"))
+    | "https" when not config.tls ->
+      raise (Cohttp_clientError ("A 'https:' URL cannot opt out of TLS by using ?tls=0", "URL_INVALID"))
+    | "http" | "https" -> ()
+    | _ -> raise (Cohttp_clientError ("The scheme must be either 'http' or 'https'", "URL_INVALID"))
 
 end

@@ -1,14 +1,10 @@
 open Cohttp_client
 
 module Auth = struct
-  type auth =
-    {
-      token : string;
-    }
+  type auth = { token : string }
 
-  let create_bearer_auth_header (auth : auth) : (string * string) =
-    ("authorization", ("Bearer " ^ auth.token))
-
+  let create_bearer_auth_header (auth : auth) : string * string =
+    ("authorization", "Bearer " ^ auth.token)
 
   let parse_auth json : auth =
     let open Yojson.Safe.Util in
@@ -21,14 +17,14 @@ module Auth = struct
 
   let port_from_env : int =
     try
-        let port_str = Sys.getenv "LIBSQL_PORT" in
-        try
-            int_of_string port_str
-        with Failure _ -> 8000
+      let port_str = Sys.getenv "LIBSQL_PORT" in
+      try int_of_string port_str with Failure _ -> 8000
     with Not_found -> 8000
 
   let hostname_from_env : string =
-    let hostname = try Sys.getenv "LIBSQL_HOST" with Not_found -> "localhost" in
+    let hostname =
+      try Sys.getenv "LIBSQL_HOST" with Not_found -> "localhost"
+    in
     hostname
 
   let token_from_env : string =
@@ -41,9 +37,13 @@ module Auth = struct
 
   let get_base_url_from_env : string =
     let hostname = hostname_from_env in
-    let hostname = if String.get hostname (String.length hostname - 1) = '/' then remove_last_char hostname else hostname in
+    let hostname =
+      if String.get hostname (String.length hostname - 1) = '/' then
+        remove_last_char hostname
+      else hostname
+    in
     let port = port_from_env in
-    let hostname = hostname ^ ":" ^ (string_of_int port) in
+    let hostname = hostname ^ ":" ^ string_of_int port in
     hostname
 
   let get_token_from_env : string =
@@ -54,15 +54,15 @@ module Auth = struct
     let token = get_token_from_env in
     { token }
 
-  let parse_url_to_config (url_str: string) : Cohttp_client.config =
+  let parse_url_to_http_config (url_str : string) : Cohttp_client.config =
     let url = Uri.of_string url_str in
     let scheme = Uri.scheme url |> Option.value ~default:"" in
     let authority = Uri.host_with_default ~default:"" url in
     let path = Uri.path url in
     let initial_auth_token = get_token_from_env in
-    let auth_token = 
+    let auth_token =
       if initial_auth_token <> "" then Some initial_auth_token
-      else 
+      else
         match Uri.get_query_param url "authToken" with
         | Some token when token <> "" -> Some token
         | _ -> None

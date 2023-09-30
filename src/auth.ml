@@ -1,3 +1,5 @@
+open Cohttp_client
+
 module Auth = struct
   exception Http_clientError of string * string
 
@@ -10,6 +12,14 @@ module Auth = struct
     auth_token : string option;
     tls : bool;
   }
+
+  type client = { config : config; url : Uri.t }
+
+  let create_client (c : config) : client =
+    let url =
+      Uri.of_string (String.concat "" [ c.scheme; "://"; c.authority; c.path ])
+    in
+    { config = c; url }
 
   let create_auth_from_token (token : string) : auth = { token }
 
@@ -102,4 +112,31 @@ module Auth = struct
         raise
           (Http_clientError
              ("The scheme must be either 'http' or 'https'", "URL_INVALID"))
+
+  let execute_query (c : client) (stmt : string) (args : (string * string) list)
+      =
+    if Uri.to_string c.url = "" then
+      raise (Http_clientError ("The client URL is empty", "CLIENT_CLOSED"));
+
+    let headers =
+      Cohttp_client.create_headers_from_pairs
+        [ ("Content-Type", "application/json") ]
+    in
+    let headers =
+      match c.config.auth_token with
+      | Some token ->
+          Cohttp.Header.add_list headers
+            [ create_bearer_auth_header (create_auth_from_token token) ]
+      | None -> headers
+    in
+    let query_params = [ ("stmt", stmt) ] @ args in
+    let uri_with_query = Uri.with_query' c.url query_params in
+
+    Lwt.bind
+      (Cohttp_client.get_request_with_headers
+         (Uri.to_string uri_with_query)
+         headers)
+      (fun body -> Lwt.return (Ok body))
+
+  let close_client client = { client with url = Uri.of_string "" }
 end

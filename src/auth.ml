@@ -139,4 +139,31 @@ module Auth = struct
       (fun body -> Lwt.return (Ok body))
 
   let close_client client = { client with url = Uri.of_string "" }
+
+  let create_auth_endpoint (query_name : string) (version : string) : string =
+    "/" ^ version ^ "/" ^ "auth" ^ "/" ^ query_name
+
+  let get_all_api_tokens (c : client) =
+    let api_tokens_endpoint = create_auth_endpoint "api_tokens" "v1" in
+    if Uri.to_string c.url = "" then
+      raise (Http_clientError ("The client URL is empty", "CLIENT_CLOSED"));
+
+    let uri_with_query = Uri.with_path c.url api_tokens_endpoint in
+    let headers =
+      Cohttp_client.create_headers_from_pairs
+        [ ("Content-Type", "application/json") ]
+    in
+    let headers =
+      match c.config.auth_token with
+      | Some token ->
+          Cohttp.Header.add_list headers
+            [ create_bearer_auth_header (create_auth_from_token token) ]
+      | None -> headers
+    in
+
+    Lwt.bind
+      (Cohttp_client.get_request_with_headers
+         (Uri.to_string uri_with_query)
+         headers)
+      (fun body -> Lwt.return (Ok body))
 end

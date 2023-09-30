@@ -4,8 +4,7 @@ module Sqlite = struct
   exception SqliteError of string * string
 
   type config = { scheme : string; authority : string; path : string }
-
-  type connection = db
+  type client = db
 
   let parse_url_to_sqlite_config (url_str : string) : config =
     let url = Uri.of_string url_str in
@@ -28,12 +27,16 @@ module Sqlite = struct
     | "file" -> ()
     | _ -> raise (SqliteError ("The scheme must be 'file'", "URL_INVALID"))
 
-  let open_db (config : config) : connection =
+  let open_client (config : config) : client =
     validate_sqlite_config config;
     db_open config.path
 
-  let execute_query (db : connection) (query : string) : unit =
-    match exec db query with
+  let execute_query (c : client) (query : string) : unit =
+    match exec c query with
     | Rc.OK -> ()
-    | error -> raise (SqliteError (Printf.sprintf "Query failed with error: %s" (Rc.to_string error), "QUERY_ERROR"))
+    | error ->
+        raise
+          (SqliteError
+             ( Printf.sprintf "Query failed with error: %s" (Rc.to_string error),
+               "QUERY_ERROR" ))
 end

@@ -74,6 +74,11 @@ module Auth = struct
     let token = get_token_from_env () in
     { token }
 
+  (*
+  let create_config : config =
+    let 
+  *)
+
   let parse_url_to_http_config (url_str : string) : config =
     let url = Uri.of_string url_str in
     let scheme = Uri.scheme url |> Option.value ~default:"" in

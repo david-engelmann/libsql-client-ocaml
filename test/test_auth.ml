@@ -90,6 +90,12 @@ let test_validate_http_config_https =
   test_case "validate_http_config with https does not raise an exception" `Quick
     (fun () -> Auth.validate_http_config sample_http_config_https)
 
+(*
+let test_get_api_tokens =
+  test_case "get_api_tokens returns tokens" `Quick (fun () ->
+      Auth.get_api_tokens)
+*)
+
 let () =
   Alcotest.run "Auth Test Suite"
     [

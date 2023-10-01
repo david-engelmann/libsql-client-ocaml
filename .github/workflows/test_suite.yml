@@ -65,11 +65,19 @@ jobs:
       - name: Dune Build
         run: opam exec -- dune build
         env:
-          AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
+          LIBSQL_TOKEN: ${{ secrets.LIBSQL_TOKEN }}
+          LIBSQL_HOST: ${{ secrets.LIBSQL_HOST }}
+          LIBSQL_PORT: ${{ secrets.LIBSQL_PORT }}
+
+      - name: sqld Build
+        run: git clone https://github.com/libsql/sqld.git && cd sqld && ./scripts/install-deps.sh && cargo build && ln -s ./target/debug/sqld /usr/bin/sqld && sqld --http-listen-addr $LIBSQL_HOST:$LIBSQL_PORT
+
       - name: Dune Test
         run: opam exec -- dune runtest 2>&1 | tee dune_runtest.log
         env:
-          AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
+          LIBSQL_TOKEN: ${{ secrets.LIBSQL_TOKEN }}
+          LIBSQL_HOST: ${{ secrets.LIBSQL_HOST }}
+          LIBSQL_PORT: ${{ secrets.LIBSQL_PORT }}
       - name: Upload Log
         uses: actions/upload-artifact@v2
         with:

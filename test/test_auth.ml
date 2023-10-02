@@ -1,5 +1,4 @@
 open Alcotest
-open Alcotest_lwt
 open Libsql.Auth
 
 let sample_basic_cred_defaults : Auth.auth = { token = "your.test.token" }
@@ -101,72 +100,63 @@ let call_get_api_tokens_with_https () =
   let api_tokens = call_get_api_tokens_with_client client in
   api_tokens
 
-let test_get_all_api_tokens_with_https () =
+let test_get_all_api_tokens_with_https _switch () =
   let open Lwt.Infix in
   call_get_api_tokens_with_https () >>= fun api_tokens_result ->
-    (match api_tokens_result with
-    | Ok api_tokens ->
-        print_endline api_tokens;
-        Alcotest.(check (neg string)) "api_tokens returned" "" api_tokens;
-    | _ ->
-        Alcotest.fail "API tokens retrieval failed");
-    Lwt.return_unit
+  (match api_tokens_result with
+  | Ok api_tokens ->
+      print_endline api_tokens;
+      Alcotest.(check (neg string)) "api_tokens returned" "" api_tokens
+  | _ -> Alcotest.fail "API tokens retrieval failed");
+  Lwt.return_unit
 
-(*
-let test_get_api_tokens =
-  test_case "get_all_api_tokens returns tokens" `Quick
-    call_get_api_tokens_with_https
-(List.length call_get_api_tokens_with_https > 0)*)
 let sync_suite =
-[
-          ( "test_sample_basic_cred_defaults",
-            `Quick,
-            test_sample_basic_cred_defaults );
-          ("test_sample_basic_cred", `Quick, test_sample_basic_cred);
-          ("test_get_base_url_from_env", `Quick, test_get_base_url_from_env);
-          ("test_get_token_from_env", `Quick, test_get_token_from_env);
-          ( "test_sample_http_config_http_scheme",
-            `Quick,
-            test_sample_http_config_http_scheme );
-          ( "test_sample_http_config_http_authority",
-            `Quick,
-            test_sample_http_config_http_authority );
-          ( "test_sample_http_config_http_path",
-            `Quick,
-            test_sample_http_config_http_path );
-          ( "test_sample_http_config_http_auth_token",
-            `Quick,
-            test_sample_http_config_http_auth_token );
-          ( "test_sample_http_config_http_tls",
-            `Quick,
-            test_sample_http_config_http_tls );
-          ( "test_sample_http_config_https_scheme",
-            `Quick,
-            test_sample_http_config_https_scheme );
-          ( "test_sample_http_config_https_authority",
-            `Quick,
-            test_sample_http_config_https_authority );
-          ( "test_sample_http_config_https_path",
-            `Quick,
-            test_sample_http_config_https_path );
-          ( "test_sample_http_config_https_auth_token",
-            `Quick,
-            test_sample_http_config_https_auth_token );
-          ( "test_sample_http_config_https_tls",
-            `Quick,
-            test_sample_http_config_https_tls );
-          test_validate_http_config_http;
-          test_validate_http_config_https;
-        ]
-let lwt_suite =
   [
-    (Alcotest_lwt.test_case "test_get_all_api_tokens_with_https", `Quick, test_get_all_api_tokens_with_https);
+    ("test_sample_basic_cred_defaults", `Quick, test_sample_basic_cred_defaults);
+    ("test_sample_basic_cred", `Quick, test_sample_basic_cred);
+    ("test_get_base_url_from_env", `Quick, test_get_base_url_from_env);
+    ("test_get_token_from_env", `Quick, test_get_token_from_env);
+    ( "test_sample_http_config_http_scheme",
+      `Quick,
+      test_sample_http_config_http_scheme );
+    ( "test_sample_http_config_http_authority",
+      `Quick,
+      test_sample_http_config_http_authority );
+    ( "test_sample_http_config_http_path",
+      `Quick,
+      test_sample_http_config_http_path );
+    ( "test_sample_http_config_http_auth_token",
+      `Quick,
+      test_sample_http_config_http_auth_token );
+    ( "test_sample_http_config_http_tls",
+      `Quick,
+      test_sample_http_config_http_tls );
+    ( "test_sample_http_config_https_scheme",
+      `Quick,
+      test_sample_http_config_https_scheme );
+    ( "test_sample_http_config_https_authority",
+      `Quick,
+      test_sample_http_config_https_authority );
+    ( "test_sample_http_config_https_path",
+      `Quick,
+      test_sample_http_config_https_path );
+    ( "test_sample_http_config_https_auth_token",
+      `Quick,
+      test_sample_http_config_https_auth_token );
+    ( "test_sample_http_config_https_tls",
+      `Quick,
+      test_sample_http_config_https_tls );
+    test_validate_http_config_http;
+    test_validate_http_config_https;
   ]
 
+let lwt_suite =
+  [
+    Alcotest_lwt.test_case "test_get_all_api_tokens_with_https" `Quick
+      test_get_all_api_tokens_with_https;
+  ]
 
 let () =
-  Alcotest.run "Auth Test Suite"
-    [
-      ( "Auth", sync_suite );
-    ]
-  Lwt_main.run (Alcotest_lwt.run "Auth Test Suite Async" [( "Auth", lwt_suite )])
+  Alcotest.run "Auth Test Suite" [ ("Auth", sync_suite) ];
+  Lwt_main.run
+    (Alcotest_lwt.run "Auth Test Suite Async" [ ("Auth", lwt_suite) ])

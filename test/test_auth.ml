@@ -1,4 +1,5 @@
 open Alcotest
+open Alcotest_lwt
 open Libsql.Auth
 
 let sample_basic_cred_defaults : Auth.auth = { token = "your.test.token" }
@@ -90,17 +91,34 @@ let test_validate_http_config_https =
   test_case "validate_http_config with https does not raise an exception" `Quick
     (fun () -> Auth.validate_http_config sample_http_config_https)
 
+let create_test_https_config =
+  Auth.parse_url_to_http_config "https://ocaml-david-engelmann.turso.io"
+
+let call_get_api_tokens_with_client c = Auth.get_all_api_tokens c
+
+let call_get_api_tokens_with_https () =
+  let client = Auth.create_client create_test_https_config in
+  let api_tokens = call_get_api_tokens_with_client client in
+  api_tokens
+
+let test_get_all_api_tokens_with_https () =
+  let open Lwt.Infix in
+  call_get_api_tokens_with_https () >>= fun api_tokens_result ->
+    (match api_tokens_result with
+    | Ok api_tokens ->
+        print_endline api_tokens;
+        Alcotest.(check (neg string)) "api_tokens returned" "" api_tokens;
+    | _ ->
+        Alcotest.fail "API tokens retrieval failed");
+    Lwt.return_unit
+
 (*
 let test_get_api_tokens =
-  test_case "get_api_tokens returns tokens" `Quick (fun () ->
-      Auth.get_api_tokens)
-*)
-
-let () =
-  Alcotest.run "Auth Test Suite"
-    [
-      ( "Auth",
-        [
+  test_case "get_all_api_tokens returns tokens" `Quick
+    call_get_api_tokens_with_https
+(List.length call_get_api_tokens_with_https > 0)*)
+let sync_suite =
+[
           ( "test_sample_basic_cred_defaults",
             `Quick,
             test_sample_basic_cred_defaults );
@@ -139,5 +157,16 @@ let () =
             test_sample_http_config_https_tls );
           test_validate_http_config_http;
           test_validate_http_config_https;
-        ] );
+        ]
+let lwt_suite =
+  [
+    (Alcotest_lwt.test_case "test_get_all_api_tokens_with_https", `Quick, test_get_all_api_tokens_with_https);
+  ]
+
+
+let () =
+  Alcotest.run "Auth Test Suite"
+    [
+      ( "Auth", sync_suite );
     ]
+  Lwt_main.run (Alcotest_lwt.run "Auth Test Suite Async" [( "Auth", lwt_suite )])

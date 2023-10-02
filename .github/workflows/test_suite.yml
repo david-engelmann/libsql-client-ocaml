@@ -76,7 +76,7 @@ jobs:
         run: apt-get install gcc g++ make libclang-dev -y
 
       - name: sqld Build
-        run: git clone https://github.com/libsql/sqld.git && cd sqld && sed -i 's/setup_14/setup_18/g' ./scripts/install-deps.sh && ./scripts/install-deps.sh && . "$HOME/.cargo/env" && cargo build && ./target/debug/sqld --http-listen-addr 0.0.0.0:8000 
+        run: git clone https://github.com/libsql/sqld.git && cd sqld && sed -i 's/setup_14/setup_18/g' ./scripts/install-deps.sh && ./scripts/install-deps.sh && . "$HOME/.cargo/env" && cargo build && ./target/debug/sqld --http-listen-addr 0.0.0.0:8000 & 
         env:
           LIBSQL_HOST: ${{ secrets.LIBSQL_HOST }}
           LIBSQL_PORT: ${{ secrets.LIBSQL_PORT }}

@@ -70,7 +70,7 @@ jobs:
           LIBSQL_PORT: ${{ secrets.LIBSQL_PORT }}
 
       - name: install rust
-        run: curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh -y
+        run: curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh -s -- -y
 
       - name: sqld Build
         run: git clone https://github.com/libsql/sqld.git && cd sqld && ./scripts/install-deps.sh && cargo build && ln -s ./target/debug/sqld /usr/bin/sqld && sqld --http-listen-addr $LIBSQL_HOST:$LIBSQL_PORT

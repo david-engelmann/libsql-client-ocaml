@@ -76,7 +76,7 @@ jobs:
         run: apt-get install gcc g++ make libclang-dev -y
 
       - name: sqld Build
-        run: git clone https://github.com/libsql/sqld.git && cd sqld && sed -i 's/setup_14/setup_18/g' ./scripts/install-deps.sh && ./scripts/install-deps.sh && . "$HOME/.cargo/env" && cargo build && ln -s ./target/debug/sqld /usr/bin/sqld && sqld --http-listen-addr $LIBSQL_HOST:$LIBSQL_PORT
+        run: git clone https://github.com/libsql/sqld.git && cd sqld && sed -i 's/setup_14/setup_18/g' ./scripts/install-deps.sh && ./scripts/install-deps.sh && . "$HOME/.cargo/env" && cargo build && ./target/debug/sqld --http-listen-addr $LIBSQL_HOST:$LIBSQL_PORT
 
       - name: Dune Test
         run: opam exec -- dune runtest 2>&1 | tee dune_runtest.log

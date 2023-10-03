@@ -8,6 +8,8 @@ let call_get_api_tokens_with_client c = Auth.get_all_api_tokens c
 let call_create_auth_token_with_client c =
   Auth.create_auth_token c "ocaml-create-auth-token"
 
+let call_get_health_with_client c = Auth.get_health c
+
 let call_get_api_tokens_with_https () =
   let client = Auth.create_client create_test_https_config in
   print_endline ("Url of client: " ^ Uri.to_string client.url);
@@ -19,6 +21,11 @@ let call_create_auth_token_with_https () =
   let client = Auth.create_client create_test_https_config in
   let api_token = call_create_auth_token_with_client client in
   api_token
+
+let call_get_health_wtih_https () =
+  let client = Auth.create_client create_test_https_config in
+  let health = call_get_health_with_client client in
+  health
 
 let test_get_all_api_tokens_with_https _switch () =
   let open Lwt.Infix in
@@ -49,12 +56,26 @@ let test_create_auth_token_with_https _switch () =
   | _ -> Alcotest.fail "API token retrieval failed");
   Lwt.return_unit
 
+let test_get_health_with_https _switch () =
+  let open Lwt.Infix in
+  print_endline "Running test_create_auth_token_with_https";
+  call_get_health_wtih_https () >>= fun health_request ->
+  (match health_request with
+  | Ok health ->
+      print_endline ("Health Response: " ^ health);
+      (*Alcotest.(check (neg string)) "api_token returned" "" api_token*)
+      Alcotest.(check string) "Health returned" "" health
+  | _ -> Alcotest.fail "Health retrieval failed");
+  Lwt.return_unit
+
 let lwt_suite =
   [
     Alcotest_lwt.test_case "test_get_all_api_tokens_with_https" `Quick
       test_get_all_api_tokens_with_https;
     Alcotest_lwt.test_case "test_create_auth_token_with_https" `Quick
       test_create_auth_token_with_https;
+    Alcotest_lwt.test_case "test_get_health_with_https" `Quick
+      test_get_health_with_https;
   ]
 
 let () =

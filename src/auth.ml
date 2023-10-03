@@ -196,4 +196,26 @@ module Auth = struct
          (Uri.to_string uri_with_query)
          headers)
       (fun body -> Lwt.return (Ok body))
+
+  let get_health (c : client) =
+    if Uri.to_string c.url = "" then
+      raise (Http_clientError ("The client URL is empty", "CLIENT_CLOSED"));
+    let uri_with_query = Uri.with_path c.url "health" in
+    let headers =
+      Cohttp_client.create_headers_from_pairs
+        [ ("Content-Type", "application/json") ]
+    in
+    let headers =
+      match c.config.auth_token with
+      | Some token ->
+          Cohttp.Header.add_list headers
+            [ create_bearer_auth_header (create_auth_from_token token) ]
+      | None -> headers
+    in
+
+    Lwt.bind
+      (Cohttp_client.get_request_with_headers
+         (Uri.to_string uri_with_query)
+         headers)
+      (fun body -> Lwt.return (Ok body))
 end

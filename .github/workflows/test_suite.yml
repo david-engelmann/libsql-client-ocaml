@@ -59,7 +59,7 @@ jobs:
             ${{ runner.os }}-opam-
 
       - name: Install Common Libs
-        run: opam install async base uri cohttp cohttp-lwt-unix cohttp-async lwt core_kernel ssl lwt_ssl jose alcotest alcotest-lwt qcheck dune ocamlformat
+        run: opam install async base uri cohttp cohttp-lwt-unix cohttp-async lwt core_kernel ssl sqlite3 lwt_ssl jose alcotest alcotest-lwt qcheck dune ocamlformat
 #      - name: Install Repo
 #        run: opam install . --deps-only --with-doc --with-test
       - name: Dune Build

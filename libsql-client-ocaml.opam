@@ -25,6 +25,7 @@ depends: [
     "alcotest"
     "alcotest-lwt"
     "sqlite3"
+    "js_of_ocaml-compiler"
     ]
 available: arch != "arm32" & arch != "x86_32"
 synopsis: "OCaml-based tools for libSQL"

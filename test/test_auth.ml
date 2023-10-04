@@ -131,5 +131,5 @@ let sync_suite =
   ]
 
 let () =
-  print_endline "Running Sync Suite";
-  Alcotest.run "Auth Test Suite" [ ("Auth", sync_suite) ]
+  print_endline "Running Auth Sync Suite";
+  Alcotest.run "Auth Sync Test Suite" [ ("AuthSync", sync_suite) ]

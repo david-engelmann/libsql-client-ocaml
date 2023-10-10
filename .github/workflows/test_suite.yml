@@ -60,7 +60,7 @@ jobs:
         id: opam-cache
         with:
           path: ~/.opam
-          key: ${{ runner.os }}-opam-${{ hashFiles('**/*.opam') }}
+          key: ${{ runner.os }}-opam-${{ hashFiles('*.opam') }}
           restore-keys: |
             ${{ runner.os }}-opam-
 

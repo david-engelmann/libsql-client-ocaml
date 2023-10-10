@@ -23,8 +23,8 @@ let test_validate_sqlite_config =
 let test_execute_query =
   test_case "execute_query does not raise an exception" `Quick (fun () ->
       let config = Sqlite.parse_url_to_sqlite_config "file:test.db" in
-      let db = Sqlite.open_db config in
-      Sqlite.execute_query db
+      let c = Sqlite.open_client config in
+      Sqlite.execute_query c
         "CREATE TABLE IF NOT EXISTS test (id INTEGER PRIMARY KEY, name TEXT \
          NOT NULL);")
 

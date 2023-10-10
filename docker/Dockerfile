@@ -32,4 +32,4 @@ RUN if [ "$USER_GID" != "1000" ] || [ "$USER_UID" != "1000" ]; then \
 USER opam
 
 RUN opam update \
-    && opam install async base uri cohttp cohttp-lwt-unix cohttp-async lwt core_kernel ssl sqlite3 lwt_ssl jose alcotest qcheck dune ocamlformat
+    && opam install async base uri cohttp cohttp-lwt-unix cohttp-async httpaf httpaf-lwt-unix lwt core_kernel ssl sqlite3 lwt_ssl jose js_of_ocaml-compiler alcotest alcotest-lwt qcheck dune ocamlformat

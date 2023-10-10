@@ -1,9 +1,15 @@
 (tests
  ; multiple test files
- (names test_auth test_hrana test_path test_sqlite test_url)
+ (names test_auth test_hrana
+        ;;test_https_hrana test_http_auth
+        test_https_auth test_path test_sqlite test_url)
 
- (libraries async core uri cohttp cohttp-lwt-unix cohttp-async httpaf httpaf-lwt-unix ssl sqlite3 jose lwt_ssl lwt alcotest libsql)
+ (libraries async core uri cohttp cohttp-lwt-unix cohttp-async httpaf httpaf-lwt-unix ssl sqlite3 jose js_of_ocaml-compiler lwt_ssl lwt alcotest alcotest-lwt libsql)
 
  ; multiple test files
- (modules test_auth test_hrana test_path test_sqlite test_url))
-
+ (modules test_auth test_hrana
+          ;;test_https_hrana test_http_auth
+          test_https_auth test_path test_sqlite test_url))
+ 
+;(executable (name test_libsql)
+;            (modes byte exe)))

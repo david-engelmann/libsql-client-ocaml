@@ -22,7 +22,7 @@ module Hrana = struct
 
   let parse_url_to_hrana_config (url_str : string) : config =
     let url = Uri.of_string url_str in
-    let scheme = Uri.scheme url |> Option.value ~default:"" in
+    let scheme_value = Uri.scheme url |> Option.value ~default:"" in
     let authority = Uri.host_with_default ~default:"" url in
     let path = Uri.path url in
     let initial_auth_token = Auth.get_token_from_env () in
@@ -39,6 +39,12 @@ module Hrana = struct
       | "1" | "true" -> true
       | "0" | "false" -> false
       | _ -> false
+    in
+    let scheme =
+      match String.lowercase_ascii scheme_value with
+      | "libsql" when tls -> "wss"
+      | "libsql" -> "ws"
+      | _ -> scheme_value
     in
     { scheme; authority; path; auth_token; tls }
 
@@ -97,4 +103,57 @@ module Hrana = struct
       (fun body -> Lwt.return (Ok body))
 
   let close_client client = { client with url = Uri.of_string "" }
+
+  let get_all_api_tokens (c : client) =
+    let api_tokens_endpoint = Auth.create_auth_endpoint "api_tokens" "v1" in
+    if Uri.to_string c.url = "" then
+      raise (HranaError ("The client URL is empty", "CLIENT_CLOSED"));
+
+    let uri_with_query = Uri.with_path c.url api_tokens_endpoint in
+    let headers =
+      Cohttp_client.create_headers_from_pairs
+        [ ("Content-Type", "application/json") ]
+    in
+    let headers =
+      match c.config.auth_token with
+      | Some token ->
+          Cohttp.Header.add_list headers
+            [
+              Auth.create_bearer_auth_header (Auth.create_auth_from_token token);
+            ]
+      | None -> headers
+    in
+
+    Lwt.bind
+      (Cohttp_client.get_request_with_headers
+         (Uri.to_string uri_with_query)
+         headers)
+      (fun body -> Lwt.return (Ok body))
+
+  let create_auth_token (c : client) (name : string) =
+    let api_tokens_endpoint = Auth.create_auth_endpoint "api_tokens" "v1" in
+    if Uri.to_string c.url = "" then
+      raise (HranaError ("The client URL is empty", "CLIENT_CLOSED"));
+    let uri_with_query = Uri.with_path c.url api_tokens_endpoint in
+    let uri_with_query = Uri.with_path uri_with_query name in
+
+    let headers =
+      Cohttp_client.create_headers_from_pairs
+        [ ("Content-Type", "application/json") ]
+    in
+    let headers =
+      match c.config.auth_token with
+      | Some token ->
+          Cohttp.Header.add_list headers
+            [
+              Auth.create_bearer_auth_header (Auth.create_auth_from_token token);
+            ]
+      | None -> headers
+    in
+
+    Lwt.bind
+      (Cohttp_client.post_request_with_headers
+         (Uri.to_string uri_with_query)
+         headers)
+      (fun body -> Lwt.return (Ok body))
 end

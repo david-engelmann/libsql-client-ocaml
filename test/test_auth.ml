@@ -90,48 +90,46 @@ let test_validate_http_config_https =
   test_case "validate_http_config with https does not raise an exception" `Quick
     (fun () -> Auth.validate_http_config sample_http_config_https)
 
+let sync_suite =
+  [
+    ("test_sample_basic_cred_defaults", `Quick, test_sample_basic_cred_defaults);
+    ("test_sample_basic_cred", `Quick, test_sample_basic_cred);
+    ("test_get_base_url_from_env", `Quick, test_get_base_url_from_env);
+    ("test_get_token_from_env", `Quick, test_get_token_from_env);
+    ( "test_sample_http_config_http_scheme",
+      `Quick,
+      test_sample_http_config_http_scheme );
+    ( "test_sample_http_config_http_authority",
+      `Quick,
+      test_sample_http_config_http_authority );
+    ( "test_sample_http_config_http_path",
+      `Quick,
+      test_sample_http_config_http_path );
+    ( "test_sample_http_config_http_auth_token",
+      `Quick,
+      test_sample_http_config_http_auth_token );
+    ( "test_sample_http_config_http_tls",
+      `Quick,
+      test_sample_http_config_http_tls );
+    ( "test_sample_http_config_https_scheme",
+      `Quick,
+      test_sample_http_config_https_scheme );
+    ( "test_sample_http_config_https_authority",
+      `Quick,
+      test_sample_http_config_https_authority );
+    ( "test_sample_http_config_https_path",
+      `Quick,
+      test_sample_http_config_https_path );
+    ( "test_sample_http_config_https_auth_token",
+      `Quick,
+      test_sample_http_config_https_auth_token );
+    ( "test_sample_http_config_https_tls",
+      `Quick,
+      test_sample_http_config_https_tls );
+    test_validate_http_config_http;
+    test_validate_http_config_https;
+  ]
+
 let () =
-  Alcotest.run "Auth Test Suite"
-    [
-      ( "Auth",
-        [
-          ( "test_sample_basic_cred_defaults",
-            `Quick,
-            test_sample_basic_cred_defaults );
-          ("test_sample_basic_cred", `Quick, test_sample_basic_cred);
-          ("test_get_base_url_from_env", `Quick, test_get_base_url_from_env);
-          ("test_get_token_from_env", `Quick, test_get_token_from_env);
-          ( "test_sample_http_config_http_scheme",
-            `Quick,
-            test_sample_http_config_http_scheme );
-          ( "test_sample_http_config_http_authority",
-            `Quick,
-            test_sample_http_config_http_authority );
-          ( "test_sample_http_config_http_path",
-            `Quick,
-            test_sample_http_config_http_path );
-          ( "test_sample_http_config_http_auth_token",
-            `Quick,
-            test_sample_http_config_http_auth_token );
-          ( "test_sample_http_config_http_tls",
-            `Quick,
-            test_sample_http_config_http_tls );
-          ( "test_sample_http_config_https_scheme",
-            `Quick,
-            test_sample_http_config_https_scheme );
-          ( "test_sample_http_config_https_authority",
-            `Quick,
-            test_sample_http_config_https_authority );
-          ( "test_sample_http_config_https_path",
-            `Quick,
-            test_sample_http_config_https_path );
-          ( "test_sample_http_config_https_auth_token",
-            `Quick,
-            test_sample_http_config_https_auth_token );
-          ( "test_sample_http_config_https_tls",
-            `Quick,
-            test_sample_http_config_https_tls );
-          test_validate_http_config_http;
-          test_validate_http_config_https;
-        ] );
-    ]
+  print_endline "Running Auth Sync Suite";
+  Alcotest.run "Auth Sync Test Suite" [ ("AuthSync", sync_suite) ]

@@ -74,6 +74,11 @@ module Auth = struct
     let token = get_token_from_env () in
     { token }
 
+  (*
+  let create_config : config =
+    let 
+  *)
+
   let parse_url_to_http_config (url_str : string) : config =
     let url = Uri.of_string url_str in
     let scheme = Uri.scheme url |> Option.value ~default:"" in
@@ -139,4 +144,78 @@ module Auth = struct
       (fun body -> Lwt.return (Ok body))
 
   let close_client client = { client with url = Uri.of_string "" }
+
+  let create_auth_endpoint (query_name : string) (version : string) : string =
+    "/" ^ version ^ "/" ^ "auth" ^ "/" ^ query_name
+
+  let get_all_api_tokens (c : client) =
+    let api_tokens_endpoint = create_auth_endpoint "api_tokens" "v1" in
+    if Uri.to_string c.url = "" then
+      raise (Http_clientError ("The client URL is empty", "CLIENT_CLOSED"));
+
+    let uri_with_query = Uri.with_path c.url api_tokens_endpoint in
+    let headers =
+      Cohttp_client.create_headers_from_pairs
+        [ ("Content-Type", "application/json") ]
+    in
+    let headers =
+      match c.config.auth_token with
+      | Some token ->
+          Cohttp.Header.add_list headers
+            [ create_bearer_auth_header (create_auth_from_token token) ]
+      | None -> headers
+    in
+
+    Lwt.bind
+      (Cohttp_client.get_request_with_headers
+         (Uri.to_string uri_with_query)
+         headers)
+      (fun body -> Lwt.return (Ok body))
+
+  let create_auth_token (c : client) (name : string) =
+    let api_tokens_endpoint = create_auth_endpoint "api_tokens" "v1" in
+    if Uri.to_string c.url = "" then
+      raise (Http_clientError ("The client URL is empty", "CLIENT_CLOSED"));
+    let uri_with_query = Uri.with_path c.url api_tokens_endpoint in
+    let uri_with_query = Uri.with_path uri_with_query name in
+
+    let headers =
+      Cohttp_client.create_headers_from_pairs
+        [ ("Content-Type", "application/json") ]
+    in
+    let headers =
+      match c.config.auth_token with
+      | Some token ->
+          Cohttp.Header.add_list headers
+            [ create_bearer_auth_header (create_auth_from_token token) ]
+      | None -> headers
+    in
+
+    Lwt.bind
+      (Cohttp_client.post_request_with_headers
+         (Uri.to_string uri_with_query)
+         headers)
+      (fun body -> Lwt.return (Ok body))
+
+  let get_health (c : client) =
+    if Uri.to_string c.url = "" then
+      raise (Http_clientError ("The client URL is empty", "CLIENT_CLOSED"));
+    let uri_with_query = Uri.with_path c.url "health" in
+    let headers =
+      Cohttp_client.create_headers_from_pairs
+        [ ("Content-Type", "application/json") ]
+    in
+    let headers =
+      match c.config.auth_token with
+      | Some token ->
+          Cohttp.Header.add_list headers
+            [ create_bearer_auth_header (create_auth_from_token token) ]
+      | None -> headers
+    in
+
+    Lwt.bind
+      (Cohttp_client.get_request_with_headers
+         (Uri.to_string uri_with_query)
+         headers)
+      (fun body -> Lwt.return (Ok body))
 end

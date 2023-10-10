@@ -50,7 +50,7 @@ jobs:
           opam-disable-sandboxing: true
 
       - name: List all .opam files
-        run: find . -name "*.opam"
+        run: find . -name "*.opam" ! -path './_opam/*'
 
       - name: Cache opam dependencies
         uses: actions/cache@v2
